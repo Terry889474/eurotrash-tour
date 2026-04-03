@@ -1,4 +1,4 @@
-const CACHE = 'eurotrash-v3';
+const CACHE = 'eurotrash-v4';
 const ASSETS = ['/', '/index.html'];
 
 self.addEventListener('install', e => {
