@@ -710,7 +710,7 @@
               <ReportTab riders={riders} isAdmin={isAdmin} />
             )}
             {activeTab === 'feed' && (
-              <FeedTab activities={activities} />
+              <FeedTab activities={activities} isAdmin={isAdmin} />
             )}
           </div>
           
@@ -1866,7 +1866,7 @@
       );
     }
     
-    function FeedTab({ activities }) {
+    function FeedTab({ activities, isAdmin }) {
       const formatTime = (timestamp) => {
         const date = new Date(timestamp);
         const now = new Date();
@@ -1914,7 +1914,29 @@
                   <div className="activity-type">
                     {isAward ? '🏆' : '⚠️'} {activity.rider}
                   </div>
-                  <div className="activity-time">{formatTime(activity.timestamp)}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div className="activity-time">{formatTime(activity.timestamp)}</div>
+                    {isAdmin && (
+                      <button
+                        onClick={async () => {
+                          if (confirm('Delete this feed entry?')) {
+                            await db.ref(`pins/activities/${activity.id}`).remove();
+                          }
+                        }}
+                        style={{
+                          background: '#dc2626',
+                          color: 'white',
+                          border: 'none',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          fontSize: '12px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ❌
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className="activity-description">
                   <strong>{pinName}</strong>
