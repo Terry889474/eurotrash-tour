@@ -1409,7 +1409,7 @@
           await riderRef.update({
             credits: (riderData.credits || 0) + 5,
             awards: (riderData.awards || 0) + 1,
-            'pins/borat': (riderData.pins?.borat || 0) + 1
+            [`pins/borat`]: (riderData.pins?.borat || 0) + 1
           });
           
           // Deduct from kitty
