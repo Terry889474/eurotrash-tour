@@ -704,10 +704,10 @@
               <QuoteTab dailyQuote={dailyQuote} riders={riders} />
             )}
             {activeTab === 'assistant' && (
-              <AssistantTab assistantSupervisor={assistantSupervisor} riders={riders} />
+              <AssistantTab assistantSupervisor={assistantSupervisor} riders={riders} isAdmin={isAdmin} />
             )}
             {activeTab === 'report' && (
-              <ReportTab riders={riders} />
+              <ReportTab riders={riders} isAdmin={isAdmin} />
             )}
             {activeTab === 'feed' && (
               <FeedTab activities={activities} />
@@ -1283,7 +1283,7 @@
       );
     }
     
-    function AssistantTab({ assistantSupervisor, riders }) {
+    function AssistantTab({ assistantSupervisor, riders, isAdmin }) {
       const [completedDuties, setCompletedDuties] = useState({});
       const [manualSelection, setManualSelection] = useState('');
       
@@ -1384,33 +1384,41 @@
               No assistant supervisor assigned yet.
             </p>
             
-            <div style={{ marginBottom: '16px' }}>
-              <button className="btn btn-primary" onClick={() => handleSetAssistant()}>
-                Auto: Set Assistant (Most Fined)
-              </button>
-            </div>
-            
-            <div style={{ borderTop: '1px solid #334155', paddingTop: '16px', marginTop: '16px' }}>
-              <label className="form-label">Or manually select:</label>
-              <select 
-                className="form-select"
-                value={manualSelection}
-                onChange={(e) => setManualSelection(e.target.value)}
-                style={{ marginBottom: '12px' }}
-              >
-                <option value="">-- Select rider --</option>
-                {RIDERS.map(name => (
-                  <option key={name} value={name}>{name}</option>
-                ))}
-              </select>
-              <button 
-                className="btn btn-secondary" 
-                onClick={() => handleSetAssistant(manualSelection)}
-                disabled={!manualSelection}
-              >
-                Set Selected as Assistant
-              </button>
-            </div>
+            {!isAdmin ? (
+              <div style={{ background: '#475569', padding: '16px', borderRadius: '8px', textAlign: 'center' }}>
+                <p style={{ margin: 0, color: '#cbd5e1' }}>🔒 Admin login required to assign Assistant</p>
+              </div>
+            ) : (
+              <>
+                <div style={{ marginBottom: '16px' }}>
+                  <button className="btn btn-primary" onClick={() => handleSetAssistant()}>
+                    Auto: Set Assistant (Most Fined)
+                  </button>
+                </div>
+                
+                <div style={{ borderTop: '1px solid #334155', paddingTop: '16px', marginTop: '16px' }}>
+                  <label className="form-label">Or manually select:</label>
+                  <select 
+                    className="form-select"
+                    value={manualSelection}
+                    onChange={(e) => setManualSelection(e.target.value)}
+                    style={{ marginBottom: '12px' }}
+                  >
+                    <option value="">-- Select rider --</option>
+                    {RIDERS.map(name => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
+                  </select>
+                  <button 
+                    className="btn btn-secondary" 
+                    onClick={() => handleSetAssistant(manualSelection)}
+                    disabled={!manualSelection}
+                  >
+                    Set Selected as Assistant
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         );
       }
@@ -1480,7 +1488,7 @@
       );
     }
     
-    function ReportTab({ riders }) {
+    function ReportTab({ riders, isAdmin }) {
       const [selectedRider, setSelectedRider] = useState('');
       const [category, setCategory] = useState('');
       const [selectedPin, setSelectedPin] = useState('');
@@ -1697,6 +1705,10 @@
                   {new Date(dailyBorat.date).toLocaleDateString()}
                 </div>
               </>
+            ) : !isAdmin ? (
+              <div style={{ padding: '16px', textAlign: 'center' }}>
+                <p style={{ margin: 0, opacity: 0.9 }}>🔒 Admin login required to award Borat</p>
+              </div>
             ) : (
               <>
                 <p style={{ marginBottom: '12px', fontSize: '14px', opacity: 0.9 }}>
@@ -1709,7 +1721,7 @@
                   onChange={(e) => setBoratSelection(e.target.value)}
                   style={{ marginBottom: '12px', background: 'white', color: '#000' }}
                 >
-                  <option value="">-- Terry: Select who deserves Borat --</option>
+                  <option value="">-- Select who deserves Borat --</option>
                   {RIDERS.map(name => (
                     <option key={name} value={name}>{name}</option>
                   ))}
