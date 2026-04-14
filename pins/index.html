@@ -1134,6 +1134,7 @@
     
     function AssistantTab({ assistantSupervisor, riders }) {
       const [completedDuties, setCompletedDuties] = useState({});
+      const [manualSelection, setManualSelection] = useState('');
       
       useEffect(() => {
         if (assistantSupervisor) {
@@ -1152,13 +1153,22 @@
         await db.ref(`pins/assistantSupervisor/completedDuties/${dutyId}`).set(newState);
       };
       
-      const handleSetAssistant = async () => {
-        // Find rider with most fines from today
+      const handleSetAssistant = async (selectedName = null) => {
         const ridersList = Object.values(riders);
         if (ridersList.length === 0) return;
         
-        const sortedByFines = [...ridersList].sort((a, b) => b.fines - a.fines);
-        const newAssistant = sortedByFines[0];
+        let newAssistant;
+        
+        if (selectedName) {
+          // Manual selection
+          newAssistant = ridersList.find(r => r.name === selectedName);
+        } else {
+          // Auto: Find rider with most fines
+          const sortedByFines = [...ridersList].sort((a, b) => b.fines - a.fines);
+          newAssistant = sortedByFines[0];
+        }
+        
+        if (!newAssistant) return;
         
         // Update assistant supervisor
         await db.ref('pins/assistantSupervisor').set({
@@ -1172,6 +1182,7 @@
           (newAssistant.assistantDays || 0) + 1
         );
         
+        setManualSelection('');
         alert(`${newAssistant.name} is now Assistant Supervisor!`);
       };
       
@@ -1219,11 +1230,36 @@
           <div className="card">
             <h2 style={{ marginBottom: '16px' }}>Daily Assistant Supervisor</h2>
             <p style={{ marginBottom: '16px', color: '#94a3b8' }}>
-              No assistant supervisor assigned yet. The rider with the most fines from the previous day becomes assistant.
+              No assistant supervisor assigned yet.
             </p>
-            <button className="btn btn-primary" onClick={handleSetAssistant}>
-              Set Today's Assistant (Most Fined)
-            </button>
+            
+            <div style={{ marginBottom: '16px' }}>
+              <button className="btn btn-primary" onClick={() => handleSetAssistant()}>
+                Auto: Set Assistant (Most Fined)
+              </button>
+            </div>
+            
+            <div style={{ borderTop: '1px solid #334155', paddingTop: '16px', marginTop: '16px' }}>
+              <label className="form-label">Or manually select:</label>
+              <select 
+                className="form-select"
+                value={manualSelection}
+                onChange={(e) => setManualSelection(e.target.value)}
+                style={{ marginBottom: '12px' }}
+              >
+                <option value="">-- Select rider --</option>
+                {RIDERS.map(name => (
+                  <option key={name} value={name}>{name}</option>
+                ))}
+              </select>
+              <button 
+                className="btn btn-secondary" 
+                onClick={() => handleSetAssistant(manualSelection)}
+                disabled={!manualSelection}
+              >
+                Set Selected as Assistant
+              </button>
+            </div>
           </div>
         );
       }
@@ -1454,12 +1490,11 @@
             <div className="form-group">
               <label className="form-label">Fine Amount (€)</label>
               <input 
-                type="number" 
+                type="text" 
                 className="form-input"
-                value={fine}
-                onChange={(e) => setFine(e.target.value)}
-                min="0"
-                step="5"
+                value="€5"
+                readOnly
+                style={{ background: '#1e293b', color: '#94a3b8', cursor: 'not-allowed' }}
               />
             </div>
             
@@ -1513,7 +1548,14 @@
         if (diffMins < 1) return 'Just now';
         if (diffMins < 60) return `${diffMins}m ago`;
         if (diffHours < 24) return `${diffHours}h ago`;
-        return `${diffDays}d ago`;
+        if (diffDays === 1) return 'Yesterday';
+        if (diffDays < 7) return `${diffDays}d ago`;
+        
+        // Show actual date for older entries
+        const day = date.getDate();
+        const month = date.toLocaleDateString('en-GB', { month: 'short' });
+        const time = date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        return `${day} ${month} ${time}`;
       };
       
       const allPins = [...PIN_CATEGORIES.positive, ...PIN_CATEGORIES.negative];
