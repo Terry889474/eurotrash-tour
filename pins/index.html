@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>EuroTrash Pins 2026</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+    
+    .app-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+      padding: 20px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    
+    .header p {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+    
+    .tabs {
+      display: flex;
+      background: #1e293b;
+      border-bottom: 2px solid #334155;
+      position: sticky;
+      top: 72px;
+      z-index: 99;
+      overflow-x: auto;
+    }
+    
+    .tab {
+      flex: 1;
+      padding: 14px 8px;
+      text-align: center;
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      white-space: nowrap;
+      min-width: 80px;
+    }
+    
+    .tab.active {
+      color: #ec4899;
+    }
+    
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #ec4899;
+    }
+    
+    .content {
+      padding: 16px;
+    }
+    
+    .card {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      border: 1px solid #334155;
+    }
+    
+    .leaderboard-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      background: #1e293b;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid #334155;
+    }
+    
+    .leaderboard-item.assistant {
+      border: 2px solid #f59e0b;
+      background: #1e1b16;
+    }
+    
+    .rank {
+      font-size: 20px;
+      font-weight: 700;
+      width: 40px;
+      text-align: center;
+      color: #7c3aed;
+    }
+    
+    .rider-info {
+      flex: 1;
+      margin-left: 12px;
+    }
+    
+    .rider-name {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+    
+    .assistant-badge {
+      display: inline-block;
+      background: #f59e0b;
+      color: #000;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      margin-left: 6px;
+      text-transform: uppercase;
+    }
+    
+    .rider-stats {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    
+    .fines-total {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ef4444;
+      text-align: right;
+    }
+    
+    .pin-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      margin: 2px;
+      background: #334155;
+    }
+    
+    .pin-badge.positive {
+      background: #059669;
+      color: white;
+    }
+    
+    .pin-badge.negative {
+      background: #dc2626;
+      color: white;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 12px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+      color: white;
+    }
+    
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+    
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-secondary {
+      background: #334155;
+      color: #e2e8f0;
+    }
+    
+    .btn-success {
+      background: #059669;
+      color: white;
+    }
+    
+    .btn-danger {
+      background: #dc2626;
+      color: white;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #cbd5e1;
+    }
+    
+    .form-select,
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-size: 15px;
+    }
+    
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    .file-upload {
+      display: block;
+      width: 100%;
+      padding: 40px;
+      border: 2px dashed #334155;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      background: #0f172a;
+      transition: all 0.2s;
+    }
+    
+    .file-upload:hover {
+      border-color: #7c3aed;
+      background: #1e293b;
+    }
+    
+    .file-upload input {
+      display: none;
+    }
+    
+    .preview-image {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+    
+    .activity-item {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 10px;
+      border-left: 4px solid #7c3aed;
+    }
+    
+    .activity-item.violation {
+      border-left-color: #ef4444;
+    }
+    
+    .activity-item.award {
+      border-left-color: #10b981;
+    }
+    
+    .activity-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    .activity-type {
+      font-weight: 700;
+      font-size: 14px;
+    }
+    
+    .activity-time {
+      font-size: 12px;
+      color: #64748b;
+    }
+    
+    .activity-description {
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+    
+    .activity-photo {
+      width: 100%;
+      border-radius: 6px;
+      margin-top: 8px;
+    }
+    
+    .kitty-banner {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .kitty-label {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.9;
+      margin-bottom: 4px;
+    }
+    
+    .kitty-amount {
+      font-size: 36px;
+      font-weight: 700;
+    }
+    
+    .quote-challenge-box {
+      background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .quote-status {
+      text-align: center;
+      font-size: 14px;
+      margin-bottom: 12px;
+      opacity: 0.9;
+    }
+    
+    .quote-input {
+      background: white;
+      color: #000;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 16px;
+      text-align: center;
+      border: none;
+      width: 100%;
+      margin-bottom: 12px;
+    }
+    
+    .quote-submitted {
+      background: rgba(255,255,255,0.2);
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    
+    .quote-result {
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+    
+    .quote-result.correct {
+      background: #059669;
+    }
+    
+    .quote-result.incorrect {
+      background: #dc2626;
+    }
+    
+    .duty-checklist {
+      background: #1e293b;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    
+    .duty-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      margin-bottom: 8px;
+      background: #0f172a;
+      border-radius: 6px;
+    }
+    
+    .duty-checkbox {
+      width: 24px;
+      height: 24px;
+      margin-right: 12px;
+      cursor: pointer;
+    }
+    
+    .duty-text {
+      flex: 1;
+      font-size: 14px;
+    }
+    
+    .duty-item.checked {
+      opacity: 0.5;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #64748b;
+    }
+    
+    @media (max-width: 480px) {
+      .header h1 {
+        font-size: 20px;
+      }
+      
+      .tab {
+        font-size: 11px;
+        padding: 12px 4px;
+        min-width: 70px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+  
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOXKNZupe6KYLqHS4DqGJnKGG0u4OI_N4",
+      authDomain: "eurotrash-2026.firebaseapp.com",
+      databaseURL: "https://eurotrash-2026-default-rtdb.firebaseio.com",
+      projectId: "eurotrash-2026",
+      storageBucket: "eurotrash-2026.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef123456"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const storage = firebase.storage();
+    
+    const RIDERS = ['Terry', 'Steve', 'Derek', 'Mark', 'Ant', 'Charles'];
+    
+    const PIN_CATEGORIES = {
+      positive: [
+        { id: 'borat', name: 'Borat - Very Nice', icon: '👍' }
+      ],
+      negative: [
+        { id: 'country-member', name: 'Country Member', icon: '🤠' },
+        { id: 'speeder', name: 'Speeder', icon: '🏍️' },
+        { id: 'dumbfuckery', name: 'Dumbfuckery', icon: '🤦' }
+      ]
+    };
+    
+    const ASSISTANT_DUTIES = [
+      { id: 'roll-call', text: 'Morning Roll Call - Check all badges', penalty: 10 },
+      { id: 'tally', text: 'Keep running tally of fines during day', penalty: 10 },
+      { id: 'photos', text: 'Ensure violation photos posted to WhatsApp', penalty: 10 },
+      { id: 'summary', text: 'Read daily summary at dinner', penalty: 10 },
+      { id: 'rituals', text: 'Lead humiliation rituals', penalty: 10 }
+    ];
+    
+    const DEFAULT_QUOTES = [
+      "I gotta see the candy first. Then I get in the van. I'm not stupid.",
+      "Knowing better has never stopped me",
+      "The beatings will continue until morale improves",
+      "Stop screaming... I'm scared too",
+      "Bad decisions make good stories",
+      "Don't grow up - it's a trap",
+      "That's a terrible idea. When do we start?",
+      "In my defense I was left unsupervised",
+      "Well if it isn't the consequences of my own actions",
+      "I shaved my balls for this?",
+      "It could always be worse",
+      "If at first you don't succeed, try doing it the way I told you to"
+    ];
+    
+    function App() {
+      const [activeTab, setActiveTab] = useState('leaderboard');
+      const [riders, setRiders] = useState({});
+      const [activities, setActivities] = useState([]);
+      const [kittyTotal, setKittyTotal] = useState(0);
+      const [dailyQuote, setDailyQuote] = useState(null);
+      const [assistantSupervisor, setAssistantSupervisor] = useState(null);
+      
+      useEffect(() => {
+        // Initialize riders if they don't exist
+        const ridersRef = db.ref('pins/riders');
+        ridersRef.once('value', (snapshot) => {
+          if (!snapshot.exists()) {
+            const initialRiders = {};
+            RIDERS.forEach(name => {
+              initialRiders[name] = {
+                name,
+                fines: 0,
+                pins: {},
+                violations: 0,
+                awards: 0,
+                assistantDays: 0
+              };
+            });
+            ridersRef.set(initialRiders);
+          }
+        });
+        
+        // Listen to riders
+        ridersRef.on('value', (snapshot) => {
+          setRiders(snapshot.val() || {});
+        });
+        
+        // Listen to activities
+        const activitiesRef = db.ref('pins/activities');
+        activitiesRef.orderByChild('timestamp').limitToLast(50).on('value', (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            const activitiesArray = Object.keys(data).map(key => ({
+              id: key,
+              ...data[key]
+            })).sort((a, b) => b.timestamp - a.timestamp);
+            setActivities(activitiesArray);
+          }
+        });
+        
+        // Listen to kitty
+        const kittyRef = db.ref('pins/kitty');
+        kittyRef.on('value', (snapshot) => {
+          setKittyTotal(snapshot.val() || 0);
+        });
+        
+        // Listen to daily quote
+        const quoteRef = db.ref('pins/dailyQuote');
+        quoteRef.on('value', (snapshot) => {
+          setDailyQuote(snapshot.val() || null);
+        });
+        
+        // Listen to assistant supervisor
+        const assistantRef = db.ref('pins/assistantSupervisor');
+        assistantRef.on('value', (snapshot) => {
+          setAssistantSupervisor(snapshot.val() || null);
+        });
+        
+        return () => {
+          ridersRef.off();
+          activitiesRef.off();
+          kittyRef.off();
+          quoteRef.off();
+          assistantRef.off();
+        };
+      }, []);
+      
+      const leaderboardData = Object.values(riders).sort((a, b) => b.fines - a.fines);
+      
+      return (
+        <div className="app-container">
+          <div className="header">
+            <h1>🏍️ EuroTrash Pins 2026</h1>
+            <p>May the odds be ever in your favor</p>
+          </div>
+          
+          <div className="tabs">
+            <button 
+              className={`tab ${activeTab === 'leaderboard' ? 'active' : ''}`}
+              onClick={() => setActiveTab('leaderboard')}
+            >
+              Board
+            </button>
+            <button 
+              className={`tab ${activeTab === 'quote' ? 'active' : ''}`}
+              onClick={() => setActiveTab('quote')}
+            >
+              Quote
+            </button>
+            <button 
+              className={`tab ${activeTab === 'assistant' ? 'active' : ''}`}
+              onClick={() => setActiveTab('assistant')}
+            >
+              Assistant
+            </button>
+            <button 
+              className={`tab ${activeTab === 'report' ? 'active' : ''}`}
+              onClick={() => setActiveTab('report')}
+            >
+              Report
+            </button>
+            <button 
+              className={`tab ${activeTab === 'feed' ? 'active' : ''}`}
+              onClick={() => setActiveTab('feed')}
+            >
+              Feed
+            </button>
+          </div>
+          
+          <div className="content">
+            {activeTab === 'leaderboard' && (
+              <LeaderboardTab 
+                riders={leaderboardData} 
+                kittyTotal={kittyTotal} 
+                assistantSupervisor={assistantSupervisor}
+              />
+            )}
+            {activeTab === 'quote' && (
+              <QuoteTab dailyQuote={dailyQuote} riders={riders} />
+            )}
+            {activeTab === 'assistant' && (
+              <AssistantTab assistantSupervisor={assistantSupervisor} riders={riders} />
+            )}
+            {activeTab === 'report' && (
+              <ReportTab riders={riders} />
+            )}
+            {activeTab === 'feed' && (
+              <FeedTab activities={activities} />
+            )}
+          </div>
+        </div>
+      );
+    }
+    
+    function LeaderboardTab({ riders, kittyTotal, assistantSupervisor }) {
+      return (
+        <>
+          <div className="kitty-banner">
+            <div className="kitty-label">Total Kitty</div>
+            <div className="kitty-amount">€{kittyTotal}</div>
+          </div>
+          
+          {riders.length === 0 ? (
+            <div className="empty-state">
+              <div>No violations yet... suspiciously quiet</div>
+            </div>
+          ) : (
+            riders.map((rider, index) => {
+              const isAssistant = assistantSupervisor?.name === rider.name;
+              return (
+                <div key={rider.name} className={`leaderboard-item ${isAssistant ? 'assistant' : ''}`}>
+                  <div className="rank">#{index + 1}</div>
+                  <div className="rider-info">
+                    <div className="rider-name">
+                      {rider.name}
+                      {isAssistant && <span className="assistant-badge">💩 Assistant</span>}
+                    </div>
+                    <div className="rider-stats">
+                      {rider.violations || 0} violations • {rider.awards || 0} awards
+                      {rider.assistantDays > 0 && ` • ${rider.assistantDays} days as assistant`}
+                    </div>
+                    <div style={{ marginTop: '6px' }}>
+                      {rider.pins && Object.entries(rider.pins).map(([pinId, count]) => {
+                        if (count > 0) {
+                          const allPins = [...PIN_CATEGORIES.positive, ...PIN_CATEGORIES.negative];
+                          const pin = allPins.find(p => p.id === pinId);
+                          const isPositive = PIN_CATEGORIES.positive.some(p => p.id === pinId);
+                          return (
+                            <span 
+                              key={pinId}
+                              className={`pin-badge ${isPositive ? 'positive' : 'negative'}`}
+                            >
+                              {pin?.icon} {count}
+                            </span>
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
+                  </div>
+                  <div className="fines-total">€{rider.fines || 0}</div>
+                </div>
+              );
+            })
+          )}
+        </>
+      );
+    }
+    
+    function QuoteTab({ dailyQuote, riders }) {
+      const [myName, setMyName] = useState('');
+      const [quoteInput, setQuoteInput] = useState('');
+      const [submitting, setSubmitting] = useState(false);
+      const [isAdmin, setIsAdmin] = useState(false);
+      const [selectedQuote, setSelectedQuote] = useState('');
+      const [customQuote, setCustomQuote] = useState('');
+      const [showAddQuote, setShowAddQuote] = useState(false);
+      const [quoteList, setQuoteList] = useState([]);
+      const [quoteUsage, setQuoteUsage] = useState({});
+      
+      const today = new Date().toISOString().split('T')[0];
+      const isToday = dailyQuote?.date === today;
+      const mySubmission = dailyQuote?.submissions?.[myName];
+      const hasSubmitted = !!mySubmission;
+      
+      useEffect(() => {
+        // Load quote list
+        const quotesRef = db.ref('pins/quoteList');
+        quotesRef.once('value', (snapshot) => {
+          if (!snapshot.exists()) {
+            // Initialize with defaults
+            quotesRef.set(DEFAULT_QUOTES);
+            setQuoteList(DEFAULT_QUOTES);
+          } else {
+            setQuoteList(snapshot.val());
+          }
+        });
+        
+        quotesRef.on('value', (snapshot) => {
+          setQuoteList(snapshot.val() || []);
+        });
+        
+        // Load usage stats
+        const usageRef = db.ref('pins/quoteUsage');
+        usageRef.on('value', (snapshot) => {
+          setQuoteUsage(snapshot.val() || {});
+        });
+        
+        return () => {
+          quotesRef.off();
+          usageRef.off();
+        };
+      }, []);
+      
+      const handleSubmitQuote = async () => {
+        if (!myName || !quoteInput.trim()) {
+          alert('Please enter your name and the quote');
+          return;
+        }
+        
+        setSubmitting(true);
+        
+        try {
+          const submissionRef = db.ref(`pins/dailyQuote/submissions/${myName}`);
+          await submissionRef.set({
+            quote: quoteInput.trim(),
+            timestamp: Date.now()
+          });
+          
+          alert('Quote submitted! You cannot change it now.');
+          setQuoteInput('');
+          setMyName('');
+        } catch (error) {
+          console.error('Error submitting:', error);
+          alert('Error submitting quote');
+        } finally {
+          setSubmitting(false);
+        }
+      };
+      
+      const handleSetDailyQuote = async () => {
+        const quoteToSet = selectedQuote === 'custom' ? customQuote.trim() : selectedQuote;
+        
+        if (!quoteToSet) {
+          alert('Please select or enter a quote');
+          return;
+        }
+        
+        try {
+          const quoteRef = db.ref('pins/dailyQuote');
+          await quoteRef.set({
+            date: today,
+            correctQuote: quoteToSet,
+            timestamp: Date.now(),
+            submissions: {}
+          });
+          
+          // Update usage count
+          const usageRef = db.ref(`pins/quoteUsage/${btoa(quoteToSet)}`);
+          const usageSnapshot = await usageRef.once('value');
+          await usageRef.set({
+            quote: quoteToSet,
+            count: (usageSnapshot.val()?.count || 0) + 1,
+            lastUsed: today
+          });
+          
+          alert('Daily quote set!');
+          setSelectedQuote('');
+          setCustomQuote('');
+          setIsAdmin(false);
+        } catch (error) {
+          console.error('Error setting quote:', error);
+          alert('Error setting quote');
+        }
+      };
+      
+      const handleAddQuote = async () => {
+        if (!customQuote.trim()) {
+          alert('Please enter a quote');
+          return;
+        }
+        
+        try {
+          const newList = [...quoteList, customQuote.trim()];
+          await db.ref('pins/quoteList').set(newList);
+          
+          alert('Quote added to list!');
+          setCustomQuote('');
+          setShowAddQuote(false);
+        } catch (error) {
+          console.error('Error adding quote:', error);
+          alert('Error adding quote');
+        }
+      };
+      
+      const handleScoreQuotes = async () => {
+        if (!dailyQuote || !dailyQuote.correctQuote) return;
+        
+        try {
+          const submissions = dailyQuote.submissions || {};
+          let finesAdded = 0;
+          
+          for (const [name, submission] of Object.entries(submissions)) {
+            const isCorrect = submission.quote === dailyQuote.correctQuote;
+            
+            // Update submission with result
+            await db.ref(`pins/dailyQuote/submissions/${name}/correct`).set(isCorrect);
+            
+            if (!isCorrect) {
+              // Add fine
+              const riderRef = db.ref(`pins/riders/${name}`);
+              const riderSnapshot = await riderRef.once('value');
+              const riderData = riderSnapshot.val();
+              
+              await riderRef.update({
+                fines: (riderData.fines || 0) + 5
+              });
+              
+              // Update kitty
+              finesAdded += 5;
+              
+              // Add activity
+              const activityRef = db.ref('pins/activities').push();
+              await activityRef.set({
+                type: 'violation',
+                rider: name,
+                pin: 'quote-challenge',
+                fine: 5,
+                description: `Failed Daily Quote Challenge. Said: "${submission.quote}" (Correct: "${dailyQuote.correctQuote}")`,
+                timestamp: Date.now()
+              });
+            }
+          }
+          
+          if (finesAdded > 0) {
+            const kittyRef = db.ref('pins/kitty');
+            const kittySnapshot = await kittyRef.once('value');
+            await kittyRef.set((kittySnapshot.val() || 0) + finesAdded);
+          }
+          
+          alert('Quotes scored!');
+        } catch (error) {
+          console.error('Error scoring:', error);
+          alert('Error scoring quotes');
+        }
+      };
+      
+      if (isAdmin) {
+        return (
+          <div className="card">
+            <h2 style={{ marginBottom: '16px' }}>Set Daily Quote (Terry Only)</h2>
+            
+            {!showAddQuote ? (
+              <>
+                <div className="form-group">
+                  <label className="form-label">Select Quote from Your Badges</label>
+                  <select 
+                    className="form-select"
+                    value={selectedQuote}
+                    onChange={(e) => setSelectedQuote(e.target.value)}
+                  >
+                    <option value="">-- Select a quote --</option>
+                    {quoteList.sort().map((quote, idx) => {
+                      const usageKey = btoa(quote);
+                      const usage = quoteUsage[usageKey];
+                      return (
+                        <option key={idx} value={quote}>
+                          {quote.length > 50 ? quote.substring(0, 50) + '...' : quote}
+                          {usage ? ` (used ${usage.count}x)` : ''}
+                        </option>
+                      );
+                    })}
+                    <option value="custom">-- Type custom quote --</option>
+                  </select>
+                </div>
+                
+                {selectedQuote === 'custom' && (
+                  <div className="form-group">
+                    <label className="form-label">Custom Quote</label>
+                    <input 
+                      type="text"
+                      className="form-input"
+                      value={customQuote}
+                      onChange={(e) => setCustomQuote(e.target.value)}
+                      placeholder="Enter exact quote"
+                    />
+                  </div>
+                )}
+                
+                <button className="btn btn-primary" onClick={handleSetDailyQuote}>
+                  Set Quote for Today
+                </button>
+                
+                <button 
+                  className="btn btn-secondary" 
+                  onClick={() => setShowAddQuote(true)}
+                  style={{ marginTop: '8px' }}
+                >
+                  Add New Quote to List
+                </button>
+                
+                <button 
+                  className="btn btn-secondary" 
+                  onClick={() => setIsAdmin(false)}
+                  style={{ marginTop: '8px' }}
+                >
+                  Cancel
+                </button>
+                
+                {Object.keys(quoteUsage).length > 0 && (
+                  <div style={{ marginTop: '20px', padding: '12px', background: '#0f172a', borderRadius: '8px' }}>
+                    <h3 style={{ fontSize: '14px', marginBottom: '8px' }}>Usage Stats</h3>
+                    <div style={{ fontSize: '13px', color: '#94a3b8' }}>
+                      Total quotes used: {Object.values(quoteUsage).reduce((sum, u) => sum + u.count, 0)}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <div className="form-group">
+                  <label className="form-label">New Quote to Add</label>
+                  <input 
+                    type="text"
+                    className="form-input"
+                    value={customQuote}
+                    onChange={(e) => setCustomQuote(e.target.value)}
+                    placeholder="Enter new quote exactly as it appears on badge"
+                  />
+                </div>
+                
+                <button className="btn btn-success" onClick={handleAddQuote}>
+                  Add to Quote List
+                </button>
+                
+                <button 
+                  className="btn btn-secondary" 
+                  onClick={() => {
+                    setShowAddQuote(false);
+                    setCustomQuote('');
+                  }}
+                  style={{ marginTop: '8px' }}
+                >
+                  Cancel
+                </button>
+              </>
+            )}
+          </div>
+        );
+      }
+      
+      return (
+        <>
+          <div className="quote-challenge-box">
+            <div className="quote-status">
+              {!isToday ? '⏳ Waiting for today\'s quote challenge' : 
+               hasSubmitted ? '✅ Quote submitted' : '📝 Submit your quote'}
+            </div>
+            
+            {isToday && !hasSubmitted && (
+              <>
+                <div className="form-group">
+                  <select 
+                    className="form-select" 
+                    value={myName}
+                    onChange={(e) => setMyName(e.target.value)}
+                    style={{ background: 'white', color: '#000', marginBottom: '12px' }}
+                  >
+                    <option value="">Select your name</option>
+                    {RIDERS.map(name => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <textarea
+                  className="quote-input"
+                  value={quoteInput}
+                  onChange={(e) => setQuoteInput(e.target.value)}
+                  placeholder="What was on Terry's tank bag?"
+                  rows="3"
+                  wrap="soft"
+                  style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word', minHeight: '80px', resize: 'vertical' }}
+                />
+                
+                <button 
+                  className="btn btn-primary"
+                  onClick={handleSubmitQuote}
+                  disabled={submitting || !myName}
+                >
+                  {submitting ? 'Submitting...' : 'Lock In Answer'}
+                </button>
+                
+                <div style={{ fontSize: '12px', textAlign: 'center', opacity: 0.8 }}>
+                  ⚠️ Cannot change after submitting!
+                </div>
+              </>
+            )}
+            
+            {isToday && hasSubmitted && (
+              <div className="quote-submitted">
+                <div style={{ marginBottom: '8px', fontSize: '14px', opacity: 0.9 }}>
+                  Your answer:
+                </div>
+                <div style={{ fontSize: '18px', fontWeight: '600' }}>
+                  {mySubmission.quote}
+                </div>
+                {mySubmission.correct !== undefined && (
+                  <div className={`quote-result ${mySubmission.correct ? 'correct' : 'incorrect'}`}>
+                    {mySubmission.correct ? '✅ CORRECT!' : `❌ INCORRECT - €5 fine`}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          
+          {isToday && dailyQuote && (
+            <div className="card">
+              <h3 style={{ marginBottom: '12px' }}>Submissions ({Object.keys(dailyQuote.submissions || {}).length}/{RIDERS.length})</h3>
+              
+              {Object.entries(dailyQuote.submissions || {}).map(([name, submission]) => (
+                <div key={name} style={{ 
+                  padding: '10px', 
+                  background: '#0f172a', 
+                  borderRadius: '6px',
+                  marginBottom: '8px',
+                  borderLeft: submission.correct === undefined ? '3px solid #64748b' :
+                              submission.correct ? '3px solid #059669' : '3px solid #dc2626'
+                }}>
+                  <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                    {name}
+                    {submission.correct !== undefined && (
+                      <span style={{ marginLeft: '8px', fontSize: '12px' }}>
+                        {submission.correct ? '✅' : '❌ €5'}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#94a3b8' }}>
+                    {submission.quote}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          <button 
+            className="btn btn-secondary"
+            onClick={() => setIsAdmin(true)}
+            style={{ marginTop: '12px' }}
+          >
+            Terry: Set Daily Quote
+          </button>
+          
+          {isToday && dailyQuote?.correctQuote && (
+            <button 
+              className="btn btn-primary"
+              onClick={handleScoreQuotes}
+              style={{ marginTop: '12px' }}
+            >
+              Terry: Score All Quotes
+            </button>
+          )}
+        </>
+      );
+    }
+    
+    function AssistantTab({ assistantSupervisor, riders }) {
+      const [completedDuties, setCompletedDuties] = useState({});
+      
+      useEffect(() => {
+        if (assistantSupervisor) {
+          const dutiesRef = db.ref(`pins/assistantSupervisor/completedDuties`);
+          dutiesRef.on('value', (snapshot) => {
+            setCompletedDuties(snapshot.val() || {});
+          });
+          return () => dutiesRef.off();
+        }
+      }, [assistantSupervisor]);
+      
+      const handleToggleDuty = async (dutyId) => {
+        if (!assistantSupervisor) return;
+        
+        const newState = !completedDuties[dutyId];
+        await db.ref(`pins/assistantSupervisor/completedDuties/${dutyId}`).set(newState);
+      };
+      
+      const handleSetAssistant = async () => {
+        // Find rider with most fines from today
+        const ridersList = Object.values(riders);
+        if (ridersList.length === 0) return;
+        
+        const sortedByFines = [...ridersList].sort((a, b) => b.fines - a.fines);
+        const newAssistant = sortedByFines[0];
+        
+        // Update assistant supervisor
+        await db.ref('pins/assistantSupervisor').set({
+          name: newAssistant.name,
+          date: new Date().toISOString().split('T')[0],
+          completedDuties: {}
+        });
+        
+        // Increment their assistant days counter
+        await db.ref(`pins/riders/${newAssistant.name}/assistantDays`).set(
+          (newAssistant.assistantDays || 0) + 1
+        );
+        
+        alert(`${newAssistant.name} is now Assistant Supervisor!`);
+      };
+      
+      const handleMissedDuty = async (duty) => {
+        if (!assistantSupervisor) return;
+        
+        const name = assistantSupervisor.name;
+        const fine = duty.penalty;
+        
+        try {
+          // Add fine
+          const riderRef = db.ref(`pins/riders/${name}`);
+          const riderSnapshot = await riderRef.once('value');
+          const riderData = riderSnapshot.val();
+          
+          await riderRef.update({
+            fines: (riderData.fines || 0) + fine
+          });
+          
+          // Update kitty
+          const kittyRef = db.ref('pins/kitty');
+          const kittySnapshot = await kittyRef.once('value');
+          await kittyRef.set((kittySnapshot.val() || 0) + fine);
+          
+          // Add activity
+          const activityRef = db.ref('pins/activities').push();
+          await activityRef.set({
+            type: 'violation',
+            rider: name,
+            pin: 'assistant-duty',
+            fine: fine,
+            description: `Missed Assistant Supervisor duty: ${duty.text}`,
+            timestamp: Date.now()
+          });
+          
+          alert(`€${fine} fine added for missed duty`);
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error adding fine');
+        }
+      };
+      
+      if (!assistantSupervisor) {
+        return (
+          <div className="card">
+            <h2 style={{ marginBottom: '16px' }}>Daily Assistant Supervisor</h2>
+            <p style={{ marginBottom: '16px', color: '#94a3b8' }}>
+              No assistant supervisor assigned yet. The rider with the most fines from the previous day becomes assistant.
+            </p>
+            <button className="btn btn-primary" onClick={handleSetAssistant}>
+              Set Today's Assistant (Most Fined)
+            </button>
+          </div>
+        );
+      }
+      
+      return (
+        <>
+          <div className="card" style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#000' }}>
+            <h2 style={{ marginBottom: '8px' }}>💩 Shit Show Assistant Supervisor</h2>
+            <div style={{ fontSize: '24px', fontWeight: '700', marginBottom: '4px' }}>
+              {assistantSupervisor.name}
+            </div>
+            <div style={{ fontSize: '14px', opacity: 0.8 }}>
+              {new Date(assistantSupervisor.date).toLocaleDateString()}
+            </div>
+          </div>
+          
+          <div className="duty-checklist">
+            <h3 style={{ marginBottom: '12px' }}>Daily Duties (€10 fine each if missed)</h3>
+            {ASSISTANT_DUTIES.map(duty => (
+              <div key={duty.id} className={`duty-item ${completedDuties[duty.id] ? 'checked' : ''}`}>
+                <input 
+                  type="checkbox"
+                  className="duty-checkbox"
+                  checked={completedDuties[duty.id] || false}
+                  onChange={() => handleToggleDuty(duty.id)}
+                />
+                <div className="duty-text">{duty.text}</div>
+                <button 
+                  className="btn btn-danger"
+                  style={{ 
+                    padding: '6px 12px', 
+                    fontSize: '12px',
+                    width: 'auto',
+                    marginLeft: '8px',
+                    marginBottom: 0
+                  }}
+                  onClick={() => handleMissedDuty(duty)}
+                >
+                  Missed
+                </button>
+              </div>
+            ))}
+          </div>
+          
+          <div className="card">
+            <h3 style={{ marginBottom: '12px' }}>Perks</h3>
+            <div style={{ fontSize: '14px', color: '#94a3b8', lineHeight: '1.6' }}>
+              ✅ First pint at evening stops<br/>
+              ✅ One navigation veto per day<br/>
+              ✅ One photo exemption<br/>
+              ✅ Best parking spot
+            </div>
+          </div>
+          
+          <button 
+            className="btn btn-secondary"
+            onClick={handleSetAssistant}
+          >
+            Reset Assistant for New Day
+          </button>
+        </>
+      );
+    }
+    
+    function ReportTab({ riders }) {
+      const [selectedRider, setSelectedRider] = useState('');
+      const [category, setCategory] = useState('');
+      const [selectedPin, setSelectedPin] = useState('');
+      const [fine, setFine] = useState('5');
+      const [description, setDescription] = useState('');
+      const [photo, setPhoto] = useState(null);
+      const [photoPreview, setPhotoPreview] = useState('');
+      const [uploading, setUploading] = useState(false);
+      const [reportedBy, setReportedBy] = useState('');
+      
+      const handlePhotoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          setPhoto(file);
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setPhotoPreview(reader.result);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+      
+      const handleSubmit = async () => {
+        if (!selectedRider || !selectedPin || !reportedBy) {
+          alert('Please fill in all required fields');
+          return;
+        }
+        
+        setUploading(true);
+        
+        try {
+          let photoURL = '';
+          
+          if (photo) {
+            const timestamp = Date.now();
+            const storageRef = storage.ref(`violations/${timestamp}_${photo.name}`);
+            const snapshot = await storageRef.put(photo);
+            photoURL = await snapshot.ref.getDownloadURL();
+          }
+          
+          const activityRef = db.ref('pins/activities').push();
+          await activityRef.set({
+            type: 'violation',
+            rider: selectedRider,
+            pin: selectedPin,
+            fine: parseInt(fine),
+            description,
+            photoURL,
+            reportedBy,
+            timestamp: Date.now()
+          });
+          
+          const riderRef = db.ref(`pins/riders/${selectedRider}`);
+          const riderSnapshot = await riderRef.once('value');
+          const riderData = riderSnapshot.val();
+          
+          await riderRef.update({
+            fines: (riderData.fines || 0) + parseInt(fine),
+            violations: (riderData.violations || 0) + 1,
+            [`pins/${selectedPin}`]: (riderData.pins?.[selectedPin] || 0) + 1
+          });
+          
+          const kittyRef = db.ref('pins/kitty');
+          const kittySnapshot = await kittyRef.once('value');
+          await kittyRef.set((kittySnapshot.val() || 0) + parseInt(fine));
+          
+          setSelectedRider('');
+          setCategory('');
+          setSelectedPin('');
+          setFine('5');
+          setDescription('');
+          setPhoto(null);
+          setPhotoPreview('');
+          setReportedBy('');
+          
+          alert('Violation reported! 📸');
+        } catch (error) {
+          console.error('Error submitting:', error);
+          alert('Error submitting violation');
+        } finally {
+          setUploading(false);
+        }
+      };
+      
+      const availablePins = category === 'positive' 
+        ? PIN_CATEGORIES.positive 
+        : category === 'negative' 
+        ? PIN_CATEGORIES.negative 
+        : [];
+      
+      return (
+        <>
+          <div className="card">
+            <h2 style={{ marginBottom: '16px', fontSize: '18px' }}>Report Violation</h2>
+            
+            <div className="form-group">
+              <label className="form-label">Your Name *</label>
+              <select 
+                className="form-select" 
+                value={reportedBy}
+                onChange={(e) => setReportedBy(e.target.value)}
+              >
+                <option value="">Select your name</option>
+                {RIDERS.map(name => (
+                  <option key={name} value={name}>{name}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Offender *</label>
+              <select 
+                className="form-select" 
+                value={selectedRider}
+                onChange={(e) => setSelectedRider(e.target.value)}
+              >
+                <option value="">Select rider</option>
+                {RIDERS.map(name => (
+                  <option key={name} value={name}>{name}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Category *</label>
+              <select 
+                className="form-select"
+                value={category}
+                onChange={(e) => {
+                  setCategory(e.target.value);
+                  setSelectedPin('');
+                }}
+              >
+                <option value="">Select category</option>
+                <option value="positive">Positive (Borat)</option>
+                <option value="negative">Negative (Violations)</option>
+              </select>
+            </div>
+            
+            {category && (
+              <div className="form-group">
+                <label className="form-label">Pin Type *</label>
+                <select 
+                  className="form-select"
+                  value={selectedPin}
+                  onChange={(e) => setSelectedPin(e.target.value)}
+                >
+                  <option value="">Select pin</option>
+                  {availablePins.map(pin => (
+                    <option key={pin.id} value={pin.id}>
+                      {pin.icon} {pin.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            
+            <div className="form-group">
+              <label className="form-label">Fine Amount (€)</label>
+              <input 
+                type="number" 
+                className="form-input"
+                value={fine}
+                onChange={(e) => setFine(e.target.value)}
+                min="0"
+                step="5"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Description</label>
+              <textarea 
+                className="form-textarea"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="What happened?"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Photo Evidence</label>
+              <label className="file-upload">
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handlePhotoChange}
+                />
+                <div>📸 {photo ? 'Change Photo' : 'Take/Upload Photo'}</div>
+              </label>
+              {photoPreview && (
+                <img src={photoPreview} alt="Preview" className="preview-image" />
+              )}
+            </div>
+            
+            <button 
+              className="btn btn-primary"
+              onClick={handleSubmit}
+              disabled={uploading}
+            >
+              {uploading ? 'Submitting...' : 'Submit Violation'}
+            </button>
+          </div>
+        </>
+      );
+    }
+    
+    function FeedTab({ activities }) {
+      const formatTime = (timestamp) => {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        return `${diffDays}d ago`;
+      };
+      
+      const allPins = [...PIN_CATEGORIES.positive, ...PIN_CATEGORIES.negative];
+      
+      if (activities.length === 0) {
+        return (
+          <div className="empty-state">
+            <div>No activity yet</div>
+          </div>
+        );
+      }
+      
+      return (
+        <>
+          {activities.map(activity => {
+            const pin = allPins.find(p => p.id === activity.pin);
+            const isAward = activity.type === 'award';
+            
+            let pinName = pin ? `${pin.icon} ${pin.name}` : activity.pin;
+            if (activity.pin === 'quote-challenge') pinName = '📝 Quote Challenge';
+            if (activity.pin === 'assistant-duty') pinName = '💩 Assistant Duty';
+            
+            return (
+              <div key={activity.id} className={`activity-item ${activity.type}`}>
+                <div className="activity-header">
+                  <div className="activity-type">
+                    {isAward ? '🏆' : '⚠️'} {activity.rider}
+                  </div>
+                  <div className="activity-time">{formatTime(activity.timestamp)}</div>
+                </div>
+                <div className="activity-description">
+                  <strong>{pinName}</strong>
+                  {activity.fine > 0 && ` • €${activity.fine}`}
+                  {activity.description && (
+                    <div style={{ marginTop: '6px', color: '#cbd5e1' }}>
+                      {activity.description}
+                    </div>
+                  )}
+                  {activity.reportedBy && (
+                    <div style={{ marginTop: '6px', fontSize: '12px', color: '#64748b' }}>
+                      Reported by {activity.reportedBy}
+                    </div>
+                  )}
+                </div>
+                {activity.photoURL && (
+                  <img src={activity.photoURL} alt="Evidence" className="activity-photo" />
+                )}
+              </div>
+            );
+          })}
+        </>
+      );
+    }
+    
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
