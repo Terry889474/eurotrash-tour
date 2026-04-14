@@ -474,6 +474,15 @@
     
     const RIDERS = ['Terry', 'Steve', 'Derek', 'Mark', 'Ant', 'Charles'];
     
+    const RIDER_PINS = {
+      'Terry': '202',
+      'Steve': '111',
+      'Derek': '222',
+      'Mark': '333',
+      'Ant': '444',
+      'Charles': '555'
+    };
+    
     const PIN_CATEGORIES = {
       positive: [
         { id: 'borat', name: 'Borat - Very Nice', icon: '👍' }
@@ -705,6 +714,7 @@
     
     function QuoteTab({ dailyQuote, riders }) {
       const [myName, setMyName] = useState('');
+      const [myPin, setMyPin] = useState('');
       const [quoteInput, setQuoteInput] = useState('');
       const [submitting, setSubmitting] = useState(false);
       const [isAdmin, setIsAdmin] = useState(false);
@@ -754,6 +764,13 @@
           return;
         }
         
+        // Verify PIN
+        if (myPin !== RIDER_PINS[myName]) {
+          alert('Incorrect PIN. Try again.');
+          setMyPin('');
+          return;
+        }
+        
         setSubmitting(true);
         
         try {
@@ -766,6 +783,7 @@
           alert('Quote submitted! You cannot change it now.');
           setQuoteInput('');
           setMyName('');
+          setMyPin('');
         } catch (error) {
           console.error('Error submitting:', error);
           alert('Error submitting quote');
@@ -1009,6 +1027,20 @@
                   </select>
                 </div>
                 
+                <div className="form-group">
+                  <input
+                    type="number"
+                    className="form-input"
+                    value={myPin}
+                    onChange={(e) => setMyPin(e.target.value)}
+                    placeholder="Enter your 3-digit PIN"
+                    maxLength="3"
+                    pattern="[0-9]*"
+                    inputMode="numeric"
+                    style={{ background: 'white', color: '#000', marginBottom: '12px', textAlign: 'center', fontSize: '18px', letterSpacing: '8px' }}
+                  />
+                </div>
+                
                 <textarea
                   className="quote-input"
                   value={quoteInput}
@@ -1022,7 +1054,7 @@
                 <button 
                   className="btn btn-primary"
                   onClick={handleSubmitQuote}
-                  disabled={submitting || !myName}
+                  disabled={submitting || !myName || !myPin}
                 >
                   {submitting ? 'Submitting...' : 'Lock In Answer'}
                 </button>
