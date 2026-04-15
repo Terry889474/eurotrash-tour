@@ -823,8 +823,65 @@
                       {isAssistant && <span className="assistant-badge">💩 Assistant</span>}
                     </div>
                     <div className="rider-stats">
-                      {rider.violations || 0} violations • {rider.awards || 0} awards
-                      {rider.assistantDays > 0 && ` • ${rider.assistantDays} days as assistant`}
+                      <span style={{ 
+                        display: 'inline-block',
+                        padding: '4px 10px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        marginRight: '6px',
+                        background: '#10b981',
+                        color: 'white'
+                      }}>
+                        👍 {rider.awards || 0}
+                      </span>
+                      <span style={{ 
+                        display: 'inline-block',
+                        padding: '4px 10px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        marginRight: '6px',
+                        background: '#ef4444',
+                        color: 'white'
+                      }}>
+                        ⚠️ {(rider.speeder || 0) + (rider.country || 0) + (rider.dumbfuckery || 0)}
+                      </span>
+                      <span style={{ 
+                        display: 'inline-block',
+                        padding: '4px 10px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        marginRight: '6px',
+                        background: '#10b981',
+                        color: 'white'
+                      }}>
+                        ✅ {rider.quotesCorrect || 0}
+                      </span>
+                      <span style={{ 
+                        display: 'inline-block',
+                        padding: '4px 10px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        marginRight: '6px',
+                        background: '#ef4444',
+                        color: 'white'
+                      }}>
+                        ❌ {rider.quotesWrong || 0}
+                      </span>
+                      <span style={{ 
+                        display: 'inline-block',
+                        padding: '4px 10px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        background: '#3b82f6',
+                        color: 'white'
+                      }}>
+                        💩 {rider.assistantDays || 0}
+                      </span>
                     </div>
                     <div style={{ marginTop: '6px' }}>
                       {rider.pins && Object.entries(rider.pins).map(([pinId, count]) => {
@@ -1009,15 +1066,16 @@
             // Update submission with result
             await db.ref(`pins/dailyQuote/submissions/${name}/correct`).set(isCorrect);
             
+            const riderRef = db.ref(`pins/riders/${name}`);
+            const riderSnapshot = await riderRef.once('value');
+            const riderData = riderSnapshot.val();
+            
             if (!isCorrect) {
-              // Add fine and increment violations
-              const riderRef = db.ref(`pins/riders/${name}`);
-              const riderSnapshot = await riderRef.once('value');
-              const riderData = riderSnapshot.val();
-              
+              // Add fine and increment violations and quotesWrong
               await riderRef.update({
                 fines: (riderData.fines || 0) + 5,
-                violations: (riderData.violations || 0) + 1
+                violations: (riderData.violations || 0) + 1,
+                quotesWrong: (riderData.quotesWrong || 0) + 1
               });
               
               // Update kitty
@@ -1032,6 +1090,11 @@
                 fine: 5,
                 description: `Failed Daily Quote Challenge. Said: "${submission.quote}"`,
                 timestamp: Date.now()
+              });
+            } else {
+              // Increment quotesCorrect for correct answers
+              await riderRef.update({
+                quotesCorrect: (riderData.quotesCorrect || 0) + 1
               });
             }
           }
@@ -1699,8 +1762,17 @@
             updates.credits = (riderData.credits || 0) + 5;
             updates.awards = (riderData.awards || 0) + 1;
           } else {
-            // Negative pin: add fine
+            // Negative pin: add fine and track violation type
             updates.fines = (riderData.fines || 0) + fineAmount;
+            
+            // Track specific violation types
+            if (selectedPin === 'speeder') {
+              updates.speeder = (riderData.speeder || 0) + 1;
+            } else if (selectedPin === 'country-member') {
+              updates.country = (riderData.country || 0) + 1;
+            } else if (selectedPin === 'dumbfuckery') {
+              updates.dumbfuckery = (riderData.dumbfuckery || 0) + 1;
+            }
           }
           
           await riderRef.update(updates);
