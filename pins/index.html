@@ -805,6 +805,18 @@
           <div className="kitty-banner">
             <div className="kitty-label">Total Kitty</div>
             <div className="kitty-amount">€{kittyTotal}</div>
+            {isAdmin && (() => {
+              const totalFines = riders.reduce((sum, r) => sum + (r.fines || 0), 0);
+              const totalCredits = riders.reduce((sum, r) => sum + (r.credits || 0), 0);
+              const expectedKitty = totalFines - totalCredits;
+              const difference = kittyTotal - expectedKitty;
+              return difference !== 0 ? (
+                <div style={{ fontSize: '11px', marginTop: '4px', color: difference > 0 ? '#fbbf24' : '#ef4444' }}>
+                  Expected: €{expectedKitty} (Fines: €{totalFines} - Credits: €{totalCredits})
+                  {difference !== 0 && <span> • Diff: €{difference}</span>}
+                </div>
+              ) : null;
+            })()}
           </div>
           
           {riders.length === 0 ? (
@@ -1824,10 +1836,20 @@
           let photoURL = '';
           
           if (photo) {
-            const timestamp = Date.now();
-            const storageRef = storage.ref(`violations/${timestamp}_${photo.name}`);
-            const snapshot = await storageRef.put(photo);
-            photoURL = await snapshot.ref.getDownloadURL();
+            try {
+              const timestamp = Date.now();
+              const storageRef = storage.ref(`violations/${timestamp}_${photo.name}`);
+              const snapshot = await storageRef.put(photo);
+              photoURL = await snapshot.ref.getDownloadURL();
+            } catch (photoError) {
+              console.error('Photo upload error:', photoError);
+              alert('Photo upload failed. Storage may not be configured. Continue without photo?');
+              if (!confirm('Continue without photo?')) {
+                setUploading(false);
+                return;
+              }
+              // Continue without photo
+            }
           }
           
           const isPositive = category === 'positive';
