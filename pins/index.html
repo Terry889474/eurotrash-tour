@@ -1348,7 +1348,7 @@
             )}
           </div>
           
-          {isToday && dailyQuote && (
+          {isAdmin && isToday && dailyQuote && (
             <div className="card">
               <h3 style={{ marginBottom: '12px' }}>Submissions ({Object.keys(dailyQuote.submissions || {}).length}/{RIDERS.length})</h3>
               
