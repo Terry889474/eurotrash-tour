@@ -920,14 +920,33 @@
                     </div>
                   </div>
                   <div className="fines-total">
-                    <div style={{ fontSize: '20px', fontWeight: '700' }}>
-                      €{(rider.fines || 0) - (rider.credits || 0)}
-                    </div>
-                    {rider.credits > 0 && (
-                      <div style={{ fontSize: '11px', color: '#059669', marginTop: '2px' }}>
-                        {rider.violations || 0} fines - {rider.awards || 0} credits
-                      </div>
-                    )}
+                    {(() => {
+                      const balance = (rider.fines || 0) - (rider.credits || 0);
+                      const isDebit = balance > 0;
+                      const isCredit = balance < 0;
+                      return (
+                        <>
+                          <div style={{ fontSize: '20px', fontWeight: '700' }}>
+                            €{Math.abs(balance)}
+                          </div>
+                          {isDebit && (
+                            <div style={{ fontSize: '11px', color: '#ef4444', marginTop: '2px' }}>
+                              In Debit
+                            </div>
+                          )}
+                          {isCredit && (
+                            <div style={{ fontSize: '11px', color: '#059669', marginTop: '2px' }}>
+                              In Credit
+                            </div>
+                          )}
+                          {rider.credits > 0 && (
+                            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                              {rider.violations || 0} fines - {rider.awards || 0} credits
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
               );
