@@ -1097,8 +1097,24 @@
           const submissions = dailyQuote.submissions || {};
           let finesAdded = 0;
           
+          // Normalize function: lowercase, remove punctuation, trim whitespace
+          const normalize = (str) => {
+            return str
+              .toLowerCase()
+              .replace(/[.,;:!?'"]/g, '') // Remove punctuation
+              .replace(/\s+/g, ' ')        // Normalize whitespace
+              .trim();
+          };
+          
+          const correctNormalized = normalize(dailyQuote.correctQuote);
+          
           for (const [name, submission] of Object.entries(submissions)) {
-            const isCorrect = submission.quote === dailyQuote.correctQuote;
+            const submissionNormalized = normalize(submission.quote);
+            
+            // Check for exact match OR if submission is very close (90% match)
+            const isCorrect = submissionNormalized === correctNormalized ||
+                            (submissionNormalized.length >= correctNormalized.length * 0.9 &&
+                             correctNormalized.includes(submissionNormalized));
             
             // Update submission with result
             await db.ref(`pins/dailyQuote/submissions/${name}/correct`).set(isCorrect);
