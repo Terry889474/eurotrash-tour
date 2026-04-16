@@ -1509,6 +1509,57 @@
       };
       
       const handleSetAssistant = async (selectedName = null) => {
+        // Check if there's a current assistant with uncompleted duties
+        if (assistantSupervisor) {
+          const uncompletedDuties = ASSISTANT_DUTIES.filter(duty => !completedDuties[duty.id]);
+          
+          if (uncompletedDuties.length > 0) {
+            const confirmMsg = `${assistantSupervisor.name} has ${uncompletedDuties.length} uncompleted duties.\n\nApply €${uncompletedDuties.length * 5} in fines before setting new assistant?`;
+            
+            if (!confirm(confirmMsg)) {
+              return; // User cancelled
+            }
+            
+            // Apply fines for all missed duties
+            const totalFines = uncompletedDuties.length * 5;
+            const name = assistantSupervisor.name;
+            
+            try {
+              // Add fines to rider
+              const riderRef = db.ref(`pins/riders/${name}`);
+              const riderSnapshot = await riderRef.once('value');
+              const riderData = riderSnapshot.val();
+              
+              await riderRef.update({
+                fines: (riderData.fines || 0) + totalFines
+              });
+              
+              // Update kitty
+              const kittyRef = db.ref('pins/kitty');
+              const kittySnapshot = await kittyRef.once('value');
+              await kittyRef.set((kittySnapshot.val() || 0) + totalFines);
+              
+              // Add activity for each missed duty
+              for (const duty of uncompletedDuties) {
+                const activityRef = db.ref('pins/activities').push();
+                await activityRef.set({
+                  type: 'violation',
+                  rider: name,
+                  pin: 'assistant-duty',
+                  fine: 5,
+                  description: `Missed Assistant Supervisor duty: ${duty.text}`,
+                  timestamp: Date.now()
+                });
+              }
+            } catch (error) {
+              console.error('Error applying fines:', error);
+              alert('Error applying fines for missed duties');
+              return;
+            }
+          }
+        }
+        
+        // Now set the new assistant
         const ridersList = Object.values(riders);
         if (ridersList.length === 0) return;
         
