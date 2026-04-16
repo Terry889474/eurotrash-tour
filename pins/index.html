@@ -924,9 +924,10 @@
                       const balance = (rider.fines || 0) - (rider.credits || 0);
                       const isDebit = balance > 0;
                       const isCredit = balance < 0;
+                      const amountColor = isDebit ? '#ef4444' : isCredit ? '#059669' : '#ffffff';
                       return (
                         <>
-                          <div style={{ fontSize: '20px', fontWeight: '700' }}>
+                          <div style={{ fontSize: '20px', fontWeight: '700', color: amountColor }}>
                             €{Math.abs(balance)}
                           </div>
                           {isDebit && (
