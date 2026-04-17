@@ -1101,8 +1101,10 @@
           const normalize = (str) => {
             return str
               .toLowerCase()
-              .replace(/[.,;:!?'"]/g, '') // Remove punctuation
-              .replace(/\s+/g, ' ')        // Normalize whitespace
+              .replace(/[''']/g, '')           // Remove all apostrophe types
+              .replace(/["""]/g, '')           // Remove all quote types
+              .replace(/[.,;:!?—–-]/g, '')     // Remove punctuation and dashes
+              .replace(/\s+/g, ' ')            // Normalize whitespace
               .trim();
           };
           
