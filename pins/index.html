@@ -1109,9 +1109,15 @@
           };
           
           const correctNormalized = normalize(dailyQuote.correctQuote);
+          console.log('SCORING - Correct quote:', dailyQuote.correctQuote);
+          console.log('SCORING - Normalized correct:', correctNormalized);
           
           for (const [name, submission] of Object.entries(submissions)) {
             const submissionNormalized = normalize(submission.quote);
+            
+            console.log(`SCORING - ${name} submitted:`, submission.quote);
+            console.log(`SCORING - ${name} normalized:`, submissionNormalized);
+            console.log(`SCORING - Match? ${submissionNormalized === correctNormalized}`);
             
             // Check for exact match OR if submission is very close (90% match)
             const isCorrect = submissionNormalized === correctNormalized ||
