@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1e1b4b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>EuroTrash Fines 2026</title>
+<link rel="manifest" href="manifest.json">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0a2e;color:#f1f5f9;min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
+.app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.header{background:linear-gradient(135deg,#4c1d95,#db2777);padding:max(14px,env(safe-area-inset-top,14px)) 16px 14px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50}
+.header-icon{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#fff}
+.header h1{font-size:18px;font-weight:700;color:#fff}
+.header p{font-size:12px;color:rgba(255,255,255,0.75)}
+.tabs{display:flex;background:#1e1b4b;border-bottom:1px solid rgba(255,255,255,0.1);position:sticky;top:72px;z-index:40;overflow-x:auto}
+.tab{flex:1;min-width:60px;padding:10px 4px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.5);border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap;transition:color 0.2s}
+.tab.active{color:#f0abfc;border-bottom:2px solid #f0abfc}
+.content{flex:1;padding:12px;overflow-y:auto}
+.card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px;margin-bottom:12px}
+.card-title{font-size:14px;font-weight:700;color:#f0abfc;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.btn{padding:10px 16px;border-radius:10px;font-size:14px;font-weight:600;border:none;cursor:pointer;width:100%;margin-top:8px;transition:opacity 0.2s}
+.btn:active{opacity:0.7}
+.btn-primary{background:linear-gradient(135deg,#7c3aed,#db2777);color:#fff}
+.btn-danger{background:#dc2626;color:#fff}
+.btn-success{background:#16a34a;color:#fff}
+.btn-warning{background:#d97706;color:#fff}
+.btn-sm{padding:6px 12px;font-size:12px;width:auto;margin-top:0}
+.select,.input,.textarea{width:100%;padding:10px 12px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:10px;color:#f1f5f9;font-size:14px;margin-top:6px;-webkit-appearance:none}
+.textarea{min-height:80px;resize:vertical}
+.label{font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.5px;margin-top:10px;display:block}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-red{background:rgba(220,38,38,0.2);color:#fca5a5;border:1px solid rgba(220,38,38,0.4)}
+.badge-green{background:rgba(22,163,74,0.2);color:#86efac;border:1px solid rgba(22,163,74,0.4)}
+.badge-gold{background:rgba(234,179,8,0.2);color:#fde047;border:1px solid rgba(234,179,8,0.4)}
+.badge-blue{background:rgba(59,130,246,0.2);color:#93c5fd;border:1px solid rgba(59,130,246,0.4)}
+.badge-purple{background:rgba(139,92,246,0.2);color:#c4b5fd;border:1px solid rgba(139,92,246,0.4)}
+.badge-pink{background:rgba(236,72,153,0.2);color:#f9a8d4;border:1px solid rgba(236,72,153,0.4)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.leaderboard-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;margin-bottom:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)}
+.leaderboard-item.gold{background:rgba(234,179,8,0.12);border-color:rgba(234,179,8,0.35)}
+.rank{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;background:rgba(255,255,255,0.1);color:#fff;flex-shrink:0}
+.avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0}
+.duty-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.07)}
+.duty-row:last-child{border-bottom:none}
+.duty-check{width:24px;height:24px;border-radius:6px;border:2px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all 0.2s}
+.duty-check.done{background:#16a34a;border-color:#16a34a}
+.mandatory-banner{background:linear-gradient(135deg,rgba(220,38,38,0.2),rgba(234,179,8,0.15));border:1px solid rgba(220,38,38,0.4);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.mandatory-banner h3{color:#fca5a5;font-size:13px;font-weight:700;margin-bottom:4px}
+.mandatory-banner p{color:rgba(255,255,255,0.7);font-size:12px;line-height:1.5}
+.wa-duty{background:rgba(37,211,102,0.12);border:1px solid rgba(37,211,102,0.35);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.wa-duty h4{color:#4ade80;font-size:13px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.wa-duty p{color:rgba(255,255,255,0.7);font-size:12px;margin-bottom:8px}
+.wa-rider-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.07)}
+.wa-rider-row:last-child{border-bottom:none}
+.feed-item{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);margin-bottom:8px}
+.feed-time{font-size:10px;color:rgba(255,255,255,0.4);margin-top:4px}
+.pin-icon{font-size:18px}
+select option{background:#1e1b4b}
+.fine-total{text-align:center;padding:14px;background:linear-gradient(135deg,rgba(220,38,38,0.15),rgba(239,68,68,0.1));border:1px solid rgba(220,38,38,0.3);border-radius:14px;margin-bottom:14px}
+.fine-total p{font-size:12px;color:rgba(255,255,255,0.6)}
+.fine-total h2{font-size:32px;font-weight:900;color:#fca5a5}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBo_SoHRABLZDmeruNnGpKgCyT2PVgK3ds",
+  authDomain: "eurotrash-2026.firebaseapp.com",
+  databaseURL: "https://eurotrash-2026-default-rtdb.firebaseio.com",
+  projectId: "eurotrash-2026",
+  storageBucket: "eurotrash-2026.firebasestorage.app",
+  messagingSenderId: "762450805750",
+  appId: "1:762450805750:web:dc53f3e5d4d158e4953dd7"
+};
+const ADMIN_PIN = "2026";
+firebase.initializeApp(FIREBASE_CONFIG);
+const db = firebase.database();
+const storage = firebase.storage();
+</script>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const RIDERS = ['Terry','Steve','Derek','Mark','Ant','Charles'];
+const RIDER_COLORS = {
+  Terry:'#16a34a', Steve:'#7c3aed', Derek:'#d97706',
+  Mark:'#0891b2', Ant:'#db2777', Charles:'#475569'
+};
+
+const PIN_CATEGORIES = {
+  positive:[{id:'borat',name:'Borat - Very Nice',icon:'👍',fine:0}],
+  negative:[
+    {id:'country-member',name:'Country Member',icon:'🤠',fine:5},
+    {id:'speeder',name:'Speeder',icon:'🏍️',fine:5},
+    {id:'dumbfuckery',name:'Dumbfuckery',icon:'🤦',fine:5},
+  ],
+  mandatory:[
+    {id:'shit-show',name:'Shit Show Badge Missing',icon:'💩',fine:5},
+    {id:'duck-you',name:'Duck You Badge Missing',icon:'🦆',fine:5},
+  ]
+};
+
+const ALL_PINS = [
+  ...PIN_CATEGORIES.positive,
+  ...PIN_CATEGORIES.negative,
+  ...PIN_CATEGORIES.mandatory
+];
+
+// ─── DUTIES (Assistant Supervisor) ─────────────────────────────────────────
+// WhatsApp location duty is COMPULSORY with e5 fine (same as badge violations)
+const DUTIES = [
+  {
+    id:'whatsapp-location',
+    icon:'📍',
+    label:'Confirm all 6 riders have shared WhatsApp Live Location in the Communications group',
+    mandatory:true,
+    fine:5,
+    isMorning:true,
+    description:'Open Communications WhatsApp group. Verify 6 live location pins visible on map. No riders exempt. Fine each absent rider €5 AND fine yourself €5 for failing to check.'
+  },
+  {id:'roll-call',icon:'📋',label:'Morning Roll Call — confirm all mandatory badges being worn',mandatory:true,fine:10,isMorning:true,description:'Check everyone has Shit Show badge on riding gear before departure.'},
+  {id:'tally',icon:'💰',label:'Keep running fine tally throughout the day',mandatory:true,fine:10,isMorning:false,description:'Track all fines collected in the app as they happen.'},
+  {id:'photos',icon:'📸',label:'Ensure all violation photos posted to WhatsApp',mandatory:true,fine:10,isMorning:false,description:'Every reported violation must have photo evidence in the group.'},
+  {id:'summary',icon:'🍺',label:'Read dinner summary — tally of the day\'s carnage',mandatory:true,fine:10,isMorning:false,description:'At dinner, read out violations, fines, and leaderboard position before voting.'},
+  {id:'rituals',icon:'🎭',label:'Lead humiliation rituals when violations occur',mandatory:true,fine:10,isMorning:false,description:'Lead the group in appropriate responses to violations as they happen.'},
+];
+
+const PERKS = [
+  {icon:'🍺',text:'First pint — every evening, no questions asked'},
+  {icon:'🗺️',text:'One navigation veto per day — overrule any route decision'},
+  {icon:'📷',text:'One photo exemption — cannot be photographed for violations'},
+  {icon:'🅿️',text:'Best parking spot — always'},
+];
+
+function Avatar({name,size=36}){
+  const color = RIDER_COLORS[name]||'#475569';
+  return(
+    <div className="avatar" style={{width:size,height:size,background:color,fontSize:size*0.4}}>
+      {name[0]}
+    </div>
+  );
+}
+
+function BoardTab({fines,violations,assistant}){
+  const totals = RIDERS.map(r=>{
+    const total = (fines[r]||[]).reduce((s,f)=>s+f.amount,0);
+    const vcount = Object.values(violations||{}).filter(v=>v.offender===r).length;
+    return {name:r,total,vcount};
+  }).sort((a,b)=>b.total-a.total);
+
+  const kitty = totals.reduce((s,r)=>s+r.total,0);
+
+  return(
+    <div>
+      <div className="fine-total">
+        <p>KITTY TOTAL</p>
+        <h2>€{kitty.toFixed(0)}</h2>
+        <p>across {RIDERS.length} riders</p>
+      </div>
+      {totals.map((r,i)=>(
+        <div key={r.name} className={`leaderboard-item${r.name===assistant?' gold':''}`}>
+          <div className="rank" style={{background:i===0?'#dc2626':i===1?'#d97706':i===2?'#475569':'rgba(255,255,255,0.1)'}}>
+            {i+1}
+          </div>
+          <Avatar name={r.name}/>
+          <div style={{flex:1}}>
+            <div style={{display:'flex',alignItems:'center',gap:6}}>
+              <span style={{fontWeight:700,fontSize:14}}>{r.name}</span>
+              {r.name===assistant&&<span className="badge badge-gold">⭐ ASSISTANT</span>}
+            </div>
+            <span style={{fontSize:12,color:'rgba(255,255,255,0.5)'}}>{r.vcount} violation{r.vcount!==1?'s':''}</span>
+          </div>
+          <span style={{fontSize:22,fontWeight:900,color:r.total>0?'#fca5a5':'#86efac'}}>€{r.total}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function QuoteTab({fines,setFines,feed,setFeed}){
+  const [user,setUser]=useState('');
+  const [quote,setQuote]=useState('');
+  const [adminPin,setAdminPin]=useState('');
+  const [correct,setCorrect]=useState('');
+  const [submissions,setSubmissions]=useState({});
+  const [scored,setScored]=useState(false);
+  const [msg,setMsg]=useState('');
+
+  useEffect(()=>{
+    db.ref('pins/quote').on('value',s=>{
+      const d=s.val()||{};
+      setCorrect(d.correct||'');
+      setSubmissions(d.submissions||{});
+      setScored(d.scored||false);
+    });
+  },[]);
+
+  const submit=()=>{
+    if(!user||!quote){setMsg('Select your name and enter the quote');return;}
+    if(submissions[user]){setMsg('Already submitted — locked in!');return;}
+    db.ref(`pins/quote/submissions/${user}`).set({quote,ts:Date.now()});
+    setQuote('');setMsg('Locked in! No going back.');
+  };
+
+  const setQuoteAdmin=()=>{
+    if(adminPin!==ADMIN_PIN){setMsg('Wrong PIN');return;}
+    db.ref('pins/quote').set({correct,submissions:{},scored:false});
+    setMsg('Quote set. Submissions cleared.');
+  };
+
+  const scoreAll=()=>{
+    if(adminPin!==ADMIN_PIN){setMsg('Wrong PIN');return;}
+    if(!correct){setMsg('Set the correct quote first');return;}
+    const updates={};
+    Object.entries(submissions).forEach(([rider,sub])=>{
+      const pass=sub.quote.trim().toLowerCase()===correct.trim().toLowerCase();
+      if(!pass){
+        const fine={amount:5,reason:'Quote Challenge fail',ts:Date.now()};
+        const existing=fines[rider]||[];
+        updates[`pins/fines/${rider}`]=[...existing,fine];
+        updates[`pins/feed/${Date.now()}_${rider}`]={
+          type:'fine',rider,reason:'Quote Challenge fail',amount:5,ts:Date.now()
+        };
+      }
+    });
+    updates['pins/quote/scored']=true;
+    db.ref().update(updates);
+    setMsg('Scored!');
+  };
+
+  return(
+    <div>
+      <div className="card">
+        <div className="card-title">📝 Daily Quote Challenge</div>
+        <p style={{fontSize:12,color:'rgba(255,255,255,0.6)',marginBottom:10,lineHeight:1.5}}>
+          Terry shows the tank-bag quote during the day. Remember it. Submit exact wording at day's end. Wrong answer = €5 fine. No photos, no cheating.
+        </p>
+        <label className="label">Your Name</label>
+        <select className="select" value={user} onChange={e=>setUser(e.target.value)}>
+          <option value="">Select...</option>
+          {RIDERS.map(r=><option key={r}>{r}</option>)}
+        </select>
+        <label className="label">The Quote (exact wording)</label>
+        <textarea className="textarea" value={quote} onChange={e=>setQuote(e.target.value)}
+          placeholder="Type the exact quote from memory..." disabled={user&&submissions[user]}/>
+        <button className="btn btn-primary" onClick={submit}>
+          {user&&submissions[user]?'✓ Submitted & Locked':'Submit Quote'}
+        </button>
+        {msg&&<p style={{marginTop:8,fontSize:12,color:'#f0abfc',textAlign:'center'}}>{msg}</p>}
+      </div>
+
+      {Object.keys(submissions).length>0&&(
+        <div className="card">
+          <div className="card-title">📊 Submissions</div>
+          {Object.entries(submissions).map(([rider,sub])=>(
+            <div key={rider} className="duty-row">
+              <Avatar name={rider} size={28}/>
+              <div style={{flex:1}}>
+                <span style={{fontSize:13,fontWeight:600}}>{rider}</span>
+                <p style={{fontSize:12,color:'rgba(255,255,255,0.5)'}}>{sub.quote}</p>
+              </div>
+              {scored&&(
+                <span className={`badge ${sub.quote.trim().toLowerCase()===correct.trim().toLowerCase()?'badge-green':'badge-red'}`}>
+                  {sub.quote.trim().toLowerCase()===correct.trim().toLowerCase()?'✓':'€5'}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="card">
+        <div className="card-title">🔐 Terry Admin</div>
+        <label className="label">Admin PIN</label>
+        <input className="input" type="password" value={adminPin} onChange={e=>setAdminPin(e.target.value)} placeholder="Enter PIN"/>
+        <label className="label">Today's Correct Quote</label>
+        <textarea className="textarea" value={correct} onChange={e=>setCorrect(e.target.value)} placeholder="Set the correct quote..."/>
+        <button className="btn btn-warning" onClick={setQuoteAdmin}>Set Quote & Reset</button>
+        <button className="btn btn-success" onClick={scoreAll} style={{marginTop:6}}>Score All Submissions</button>
+      </div>
+    </div>
+  );
+}
+
+function AssistantTab({fines,setFines,feed,assistant,setAssistant}){
+  const [adminPin,setAdminPin]=useState('');
+  const [dutyState,setDutyState]=useState({});
+  const [waRiders,setWaRiders]=useState({});
+  const [msg,setMsg]=useState('');
+
+  useEffect(()=>{
+    db.ref('pins/assistant').on('value',s=>{
+      const d=s.val()||{};
+      setAssistant(d.name||'');
+      setDutyState(d.duties||{});
+      setWaRiders(d.waRiders||{});
+    });
+  },[]);
+
+  const toggleDuty=(id)=>{
+    const updated={...dutyState,[id]:!dutyState[id]};
+    setDutyState(updated);
+    db.ref('pins/assistant/duties').set(updated);
+  };
+
+  const toggleWaRider=(rider)=>{
+    const updated={...waRiders,[rider]:!waRiders[rider]};
+    setWaRiders(updated);
+    db.ref('pins/assistant/waRiders').set(updated);
+    // Auto-fine if marking as NOT sharing
+    if(waRiders[rider]&&!updated[rider]){
+      // was confirmed, now un-confirmed — log fine
+    }
+  };
+
+  const fineMissed=(duty)=>{
+    const fine={amount:duty.fine,reason:`Assistant missed: ${duty.label}`,ts:Date.now()};
+    const existing=fines[assistant]||[];
+    db.ref(`pins/fines/${assistant}`).set([...existing,fine]);
+    db.ref(`pins/feed/${Date.now()}`).set({
+      type:'fine',rider:assistant,reason:`ASSISTANT DUTY MISSED: ${duty.label}`,amount:duty.fine,ts:Date.now()
+    });
+    setMsg(`€${duty.fine} fine logged for ${assistant}`);
+    setTimeout(()=>setMsg(''),3000);
+  };
+
+  const fineWaAbsent=(rider)=>{
+    const fine={amount:5,reason:'WhatsApp location not shared at departure',ts:Date.now()};
+    const existing=fines[rider]||[];
+    db.ref(`pins/fines/${rider}`).set([...existing,fine]);
+    // Also fine the assistant for failing to ensure compliance
+    const aFine={amount:5,reason:'Assistant failed to confirm WhatsApp location sharing',ts:Date.now()};
+    const aExisting=fines[assistant]||[];
+    db.ref(`pins/fines/${assistant}`).set([...aExisting,aFine]);
+    db.ref(`pins/feed/${Date.now()}`).set({
+      type:'fine',rider,reason:`WhatsApp location not shared — €5 to ${rider}, €5 to ${assistant}`,amount:5,ts:Date.now()
+    });
+    setMsg(`€5 to ${rider} + €5 to ${assistant} logged`);
+    setTimeout(()=>setMsg(''),4000);
+  };
+
+  const resetAssistant=()=>{
+    if(adminPin!==ADMIN_PIN){setMsg('Wrong PIN');return;}
+    // Find rider with most fines
+    const totals=RIDERS.map(r=>({
+      name:r,
+      total:(fines[r]||[]).reduce((s,f)=>s+f.amount,0)
+    })).sort((a,b)=>b.total-a.total);
+    const newAssistant=totals[0].name;
+    db.ref('pins/assistant').set({name:newAssistant,duties:{},waRiders:{}});
+    setMsg(`${newAssistant} is the new Assistant Supervisor`);
+  };
+
+  const waCompleted = RIDERS.every(r=>waRiders[r]);
+
+  return(
+    <div>
+      {/* MANDATORY MORNING TASK — WhatsApp */}
+      <div className="mandatory-banner">
+        <h3>⚠️ COMPULSORY MORNING TASK — NO EXCEPTIONS</h3>
+        <p>The Shit Show Assistant MUST confirm all 6 riders have shared their WhatsApp Live Location in the Communications group before anyone rides. Failure = €5 to each absent rider + €5 to you.</p>
+      </div>
+
+      <div className="wa-duty">
+        <h4>📍 WhatsApp Live Location Check</h4>
+        <p>Open WhatsApp > Communications group. Confirm each rider's pin is live on the map. Tick off each confirmed rider below.</p>
+        {RIDERS.map(rider=>(
+          <div key={rider} className="wa-rider-row">
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              <Avatar name={rider} size={26}/>
+              <span style={{fontSize:14,fontWeight:600}}>{rider}</span>
+            </div>
+            <div style={{display:'flex',gap:6,alignItems:'center'}}>
+              {!waRiders[rider]&&(
+                <button className="btn btn-danger btn-sm" onClick={()=>fineWaAbsent(rider)}>
+                  Not Shared — Fine
+                </button>
+              )}
+              <div
+                className={`duty-check${waRiders[rider]?' done':''}`}
+                onClick={()=>toggleWaRider(rider)}
+              >
+                {waRiders[rider]&&<span style={{color:'#fff',fontSize:14}}>✓</span>}
+              </div>
+            </div>
+          </div>
+        ))}
+        {waCompleted&&(
+          <p style={{color:'#4ade80',fontSize:13,fontWeight:700,marginTop:10,textAlign:'center'}}>
+            ✓ All 6 riders confirmed — you're clear to ride
+          </p>
+        )}
+      </div>
+
+      {/* OTHER DUTIES */}
+      <div className="card">
+        <div className="card-title">
+          {assistant?<><Avatar name={assistant} size={24}/> {assistant} — Daily Duties</>:'No Assistant Set'}
+        </div>
+        {!assistant&&<p style={{fontSize:13,color:'rgba(255,255,255,0.5)'}}>Use Terry's admin panel below to assign today's assistant.</p>}
+
+        {DUTIES.filter(d=>d.id!=='whatsapp-location').map(duty=>(
+          <div key={duty.id} className="duty-row">
+            <div
+              className={`duty-check${dutyState[duty.id]?' done':''}`}
+              onClick={()=>toggleDuty(duty.id)}
+            >
+              {dutyState[duty.id]&&<span style={{color:'#fff',fontSize:14}}>✓</span>}
+            </div>
+            <div style={{flex:1}}>
+              <div style={{display:'flex',alignItems:'center',gap:6}}>
+                <span style={{fontSize:16}}>{duty.icon}</span>
+                <span style={{fontSize:13,fontWeight:600,lineHeight:1.3}}>{duty.label}</span>
+              </div>
+              <span style={{fontSize:11,color:'rgba(255,255,255,0.4)'}}>Missed = €{duty.fine} fine</span>
+            </div>
+            {!dutyState[duty.id]&&assistant&&(
+              <button className="btn btn-danger btn-sm" onClick={()=>fineMissed(duty)}>Missed</button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* PERKS */}
+      <div className="card">
+        <div className="card-title">🏆 Today's Perks</div>
+        {PERKS.map((p,i)=>(
+          <div key={i} className="duty-row">
+            <span style={{fontSize:20}}>{p.icon}</span>
+            <span style={{fontSize:13}}>{p.text}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* ADMIN */}
+      <div className="card">
+        <div className="card-title">🔐 Terry Admin — Reset Assistant</div>
+        <label className="label">Admin PIN</label>
+        <input className="input" type="password" value={adminPin} onChange={e=>setAdminPin(e.target.value)}/>
+        <button className="btn btn-warning" onClick={resetAssistant}>
+          Assign Assistant (Rider with Most Fines)
+        </button>
+        {msg&&<p style={{marginTop:8,fontSize:12,color:'#f0abfc',textAlign:'center'}}>{msg}</p>}
+      </div>
+    </div>
+  );
+}
+
+function ReportTab({fines,feed}){
+  const [reporter,setReporter]=useState('');
+  const [offender,setOffender]=useState('');
+  const [category,setCategory]=useState('');
+  const [notes,setNotes]=useState('');
+  const [photo,setPhoto]=useState(null);
+  const [uploading,setUploading]=useState(false);
+  const [msg,setMsg]=useState('');
+  const fileRef=useRef();
+
+  const allPins=[...PIN_CATEGORIES.positive,...PIN_CATEGORIES.negative,...PIN_CATEGORIES.mandatory];
+
+  const submit=async()=>{
+    if(!reporter||!offender||!category){setMsg('Fill in all fields');return;}
+    if(reporter===offender){setMsg("Can't report yourself");return;}
+    const pin=allPins.find(p=>p.id===category);
+    setUploading(true);
+    let photoUrl='';
+    if(photo){
+      try{
+        const ref=storage.ref(`pins/violations/${Date.now()}_${photo.name}`);
+        await ref.put(photo);
+        photoUrl=await ref.getDownloadURL();
+      }catch(e){console.error(e);}
+    }
+    const ts=Date.now();
+    const fine={amount:pin.fine,reason:`${pin.name} reported by ${reporter}`,ts};
+    const existing=fines[offender]||[];
+    await db.ref(`pins/fines/${offender}`).set([...existing,fine]);
+    await db.ref(`pins/violations/${ts}`).set({
+      reporter,offender,category,pin:pin.name,fine:pin.fine,notes,photoUrl,ts
+    });
+    await db.ref(`pins/feed/${ts}`).set({
+      type:'violation',reporter,offender,pin:pin.name,fine:pin.fine,photoUrl,notes,ts
+    });
+    setReporter('');setOffender('');setCategory('');setNotes('');setPhoto(null);
+    setUploading(false);setMsg('Violation logged!');
+    setTimeout(()=>setMsg(''),3000);
+  };
+
+  return(
+    <div>
+      <div className="card">
+        <div className="card-title">🚨 Report a Violation</div>
+        <label className="label">Your Name</label>
+        <select className="select" value={reporter} onChange={e=>setReporter(e.target.value)}>
+          <option value="">Who are you?</option>
+          {RIDERS.map(r=><option key={r}>{r}</option>)}
+        </select>
+        <label className="label">Offender</label>
+        <select className="select" value={offender} onChange={e=>setOffender(e.target.value)}>
+          <option value="">Who done it?</option>
+          {RIDERS.filter(r=>r!==reporter).map(r=><option key={r}>{r}</option>)}
+        </select>
+        <label className="label">Category</label>
+        <select className="select" value={category} onChange={e=>setCategory(e.target.value)}>
+          <option value="">Select...</option>
+          <optgroup label="— Positive —">
+            {PIN_CATEGORIES.positive.map(p=><option key={p.id} value={p.id}>{p.icon} {p.name} (€{p.fine})</option>)}
+          </optgroup>
+          <optgroup label="— Achievement Pins (€5) —">
+            {PIN_CATEGORIES.negative.map(p=><option key={p.id} value={p.id}>{p.icon} {p.name}</option>)}
+          </optgroup>
+          <optgroup label="— Mandatory Badge Violations (€5) —">
+            {PIN_CATEGORIES.mandatory.map(p=><option key={p.id} value={p.id}>{p.icon} {p.name}</option>)}
+          </optgroup>
+        </select>
+        <label className="label">Notes (optional)</label>
+        <textarea className="textarea" value={notes} onChange={e=>setNotes(e.target.value)} placeholder="What happened?"/>
+        <label className="label">Photo Evidence</label>
+        <input ref={fileRef} type="file" accept="image/*" capture="environment"
+          onChange={e=>setPhoto(e.target.files[0])} style={{display:'none'}}/>
+        <button className="btn btn-warning" onClick={()=>fileRef.current.click()}>
+          {photo?`📷 ${photo.name}`:'📷 Add Photo Evidence'}
+        </button>
+        <button className="btn btn-danger" onClick={submit} disabled={uploading}>
+          {uploading?'Uploading...':'🚨 Log Violation'}
+        </button>
+        {msg&&<p style={{marginTop:8,fontSize:12,color:'#f0abfc',textAlign:'center'}}>{msg}</p>}
+      </div>
+    </div>
+  );
+}
+
+function FeedTab({feed}){
+  const items=Object.values(feed||{}).sort((a,b)=>b.ts-a.ts).slice(0,50);
+  if(!items.length)return(
+    <div className="card" style={{textAlign:'center',padding:40}}>
+      <p style={{fontSize:40}}>🏍️</p>
+      <p style={{color:'rgba(255,255,255,0.4)',marginTop:8}}>No activity yet — ride well (or don't)</p>
+    </div>
+  );
+  return(
+    <div>
+      {items.map((item,i)=>(
+        <div key={i} className="feed-item">
+          <div className="row">
+            <span style={{fontSize:20}}>{item.type==='violation'?'🚨':item.type==='fine'?'💸':'📝'}</span>
+            <div style={{flex:1,marginLeft:8}}>
+              {item.type==='violation'&&(
+                <p style={{fontSize:13,fontWeight:600}}>
+                  {item.reporter} caught <span style={{color:'#fca5a5'}}>{item.offender}</span> — {item.pin}
+                  {item.fine>0&&<span className="badge badge-red" style={{marginLeft:6}}>€{item.fine}</span>}
+                </p>
+              )}
+              {item.type==='fine'&&(
+                <p style={{fontSize:13,fontWeight:600}}>
+                  <span style={{color:'#fca5a5'}}>{item.rider}</span> — {item.reason}
+                  <span className="badge badge-red" style={{marginLeft:6}}>€{item.amount}</span>
+                </p>
+              )}
+              {item.notes&&<p style={{fontSize:11,color:'rgba(255,255,255,0.5)',marginTop:2}}>{item.notes}</p>}
+            </div>
+          </div>
+          {item.photoUrl&&<img src={item.photoUrl} alt="evidence" style={{width:'100%',borderRadius:8,marginTop:8,maxHeight:200,objectFit:'cover'}}/>}
+          <div className="feed-time">{new Date(item.ts).toLocaleString()}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function App(){
+  const [tab,setTab]=useState('board');
+  const [fines,setFines]=useState({});
+  const [feed,setFeed]=useState({});
+  const [assistant,setAssistant]=useState('');
+
+  useEffect(()=>{
+    db.ref('pins/fines').on('value',s=>setFines(s.val()||{}));
+    db.ref('pins/feed').on('value',s=>setFeed(s.val()||{}));
+    db.ref('pins/assistant/name').on('value',s=>setAssistant(s.val()||''));
+  },[]);
+
+  const TABS=[
+    {id:'board',icon:'🏆',label:'Board'},
+    {id:'quote',icon:'📝',label:'Quote'},
+    {id:'assistant',icon:'⭐',label:'Assistant'},
+    {id:'report',icon:'🚨',label:'Report'},
+    {id:'feed',icon:'📡',label:'Feed'},
+  ];
+
+  return(
+    <div className="app">
+      <div className="header">
+        <div className="header-icon">F</div>
+        <div>
+          <h1>EuroTrash Fines 2026</h1>
+          <p>Ride hard. Pay harder.</p>
+        </div>
+      </div>
+      <div className="tabs">
+        {TABS.map(t=>(
+          <button key={t.id} className={`tab${tab===t.id?' active':''}`} onClick={()=>setTab(t.id)}>
+            <span>{t.icon}</span>
+            <span>{t.label}</span>
+          </button>
+        ))}
+      </div>
+      <div className="content">
+        {tab==='board'&&<BoardTab fines={fines} violations={{}} assistant={assistant}/>}
+        {tab==='quote'&&<QuoteTab fines={fines} setFines={setFines} feed={feed} setFeed={setFeed}/>}
+        {tab==='assistant'&&<AssistantTab fines={fines} setFines={setFines} feed={feed} assistant={assistant} setAssistant={setAssistant}/>}
+        {tab==='report'&&<ReportTab fines={fines} feed={feed}/>}
+        {tab==='feed'&&<FeedTab feed={feed}/>}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.render(<App/>, document.getElementById('root'));
+</script>
+</body>
+</html>
